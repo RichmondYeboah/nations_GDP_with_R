@@ -1,0 +1,84 @@
+---
+title: "GDP"
+author: "Richmond"
+date: "6/27/2021"
+output: html_document
+---
+
+```{r}
+#install.packages("tidyverse")
+#install.packages("ggplot2")
+#install.packages("dbplyr")
+#install.packages("highcharter")
+#install.packages("plotly")
+
+
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(plotly)
+library(highcharter)
+library(RColorBrewer)
+```
+
+```{r}
+setwd("C:/Users/User/Documents/Data_Science/datasets")
+
+nations <- read.csv("nations.csv") %>%
+  mutate(gdp = (gdp_percap * population) / 10^12)
+
+
+```
+
+
+```{r}
+head(nations)
+```
+
+# Set which country to choose
+
+```{r}
+big4 <- nations %>%
+  filter(iso3c == "CHN" | iso3c == "DEU" | iso3c == "JPN" | iso3c == "USA") %>%
+  arrange(year)
+```
+
+
+
+```{r}
+
+highchart() %>%
+  hc_add_series(data = big4,
+                   type = "line",
+                   hcaes(x = year,
+                   y = gdp, 
+                   group = country)) %>%
+  hc_colors(cols) %>%
+  hc_xAxis(title = list(text="Year")) %>%
+  hc_yAxis(title = list(text="GDP ($ trillion)")) %>%
+  hc_plotOptions(series = list(marker = list(symbol = "circle"))) %>%
+  hc_legend( 
+            align = "right",
+            verticalAlign = "middle",
+            layout="vertical") %>% 
+   hc_title(
+    text = "China's Rise to Become the Largest Economy"
+    )
+
+
+
+```
+
+# 
+
+```{r}
+regions <- nations %>%
+  group_by(year,region) %>%
+  summarize(gdp = sum(gdp, na.rm = TRUE)) %>%
+  arrange(year,region)
+
+```
+
+
